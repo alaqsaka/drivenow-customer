@@ -1,9 +1,14 @@
 import { Button, Group } from "@mantine/core";
+import Hero from "./components/Hero";
+import { FeaturesAsymmetrical } from "./components/LandingPage/Features";
+import Cars from "./components/parts/Cars";
 
 export default function IndexPage() {
   return (
-    <Group mt={50} position="center">
-      <Button size="xl">Welcome to Mantine!</Button>
-    </Group>
+    <>
+      <Hero />
+      <FeaturesAsymmetrical />
+      <Cars />
+    </>
   );
 }
