@@ -1,7 +1,7 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { useState } from "react";
-import Layout from "./components/layout";
+import Layout from "./components/Layout";
 import {
   ColorScheme,
   ColorSchemeProvider,
