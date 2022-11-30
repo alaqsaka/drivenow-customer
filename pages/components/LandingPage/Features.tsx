@@ -7,6 +7,7 @@ import {
   Badge,
   Title,
 } from "@mantine/core";
+import React from "react";
 import {
   IconTruck,
   IconCertificate,
@@ -101,7 +102,7 @@ const mockdata = [
   },
 ];
 
-export function FeaturesAsymmetrical() {
+export default function FeaturesAsymmetrical() {
   const items = mockdata.map((item) => <Feature {...item} key={item.title} />);
   const { classes, theme } = useStyles();
   return (
