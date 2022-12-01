@@ -114,7 +114,7 @@ export function ContactIconsList({
   return <Stack>{items}</Stack>;
 }
 
-export function ContactIcons() {
+export default function ContactIcons() {
   return (
     <SimpleGrid cols={2} breakpoints={[{ maxWidth: 755, cols: 1 }]}>
       <Box
