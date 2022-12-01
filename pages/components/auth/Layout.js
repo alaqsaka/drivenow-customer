@@ -9,22 +9,7 @@ export default function Layout({ children }) {
       <Head>
         <title>Layouts Example</title>
       </Head>
-      <AuthNavbar
-        links={[
-          {
-            link: "/dashboard",
-            label: "Dashboard",
-          },
-          {
-            link: "/sewa",
-            label: "Sewa Mobil",
-          },
-          {
-            link: "/about",
-            label: "Tentang DriveNow",
-          },
-        ]}
-      />
+      <AuthNavbar />
 
       <Container>
         <Grid>

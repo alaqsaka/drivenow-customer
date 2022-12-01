@@ -95,7 +95,21 @@ interface HeaderResponsiveProps {
   links: { link: string; label: string }[];
 }
 
-export default function AuthNavbar({ links }: HeaderResponsiveProps) {
+export default function AuthNavbar() {
+  const links = [
+    {
+      link: "/dashboard",
+      label: "Dashboard",
+    },
+    {
+      link: "/sewa",
+      label: "Sewa Mobil",
+    },
+    {
+      link: "/about",
+      label: "Tentang DriveNow",
+    },
+  ];
   const [opened, { toggle, close }] = useDisclosure(false);
   const [active, setActive] = useState(links[0].link);
   const { classes, cx } = useStyles();
