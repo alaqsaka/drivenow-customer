@@ -8,6 +8,7 @@ import {
   Text,
   Anchor,
 } from "@mantine/core";
+import Head from "next/head";
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -48,40 +49,47 @@ const useStyles = createStyles((theme) => ({
 export default function Login() {
   const { classes } = useStyles();
   return (
-    <div className={classes.wrapper}>
-      <Paper className={classes.form} radius={0} p={30}>
-        <Title
-          order={2}
-          className={classes.title}
-          align="center"
-          mt="md"
-          mb={50}
-        >
-          Selamat datang di DriveNow
-        </Title>
+    <>
+      <Head>
+        <title>DriveNow | Masuk</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
 
-        <TextInput
-          label="Email address"
-          placeholder="hello@gmail.com"
-          size="md"
-        />
-        <PasswordInput
-          label="Password"
-          placeholder="Your password"
-          mt="md"
-          size="md"
-        />
-        <Button fullWidth mt="xl" size="md">
-          Masuk
-        </Button>
+      <div className={classes.wrapper}>
+        <Paper className={classes.form} radius={0} p={30}>
+          <Title
+            order={2}
+            className={classes.title}
+            align="center"
+            mt="md"
+            mb={50}
+          >
+            Selamat datang di DriveNow
+          </Title>
 
-        <Text align="center" mt="md">
-          Belum punya akun?{" "}
-          <Anchor<"a"> href="/signup" weight={700}>
-            Daftar
-          </Anchor>
-        </Text>
-      </Paper>
-    </div>
+          <TextInput
+            label="Email address"
+            placeholder="hello@gmail.com"
+            size="md"
+          />
+          <PasswordInput
+            label="Password"
+            placeholder="Your password"
+            mt="md"
+            size="md"
+          />
+          <Button fullWidth mt="xl" size="md">
+            Masuk
+          </Button>
+
+          <Text align="center" mt="md">
+            Belum punya akun?{" "}
+            <Anchor<"a"> href="/signup" weight={700}>
+              Daftar
+            </Anchor>
+          </Text>
+        </Paper>
+      </div>
+    </>
   );
 }
