@@ -30,6 +30,7 @@ import {
   IconCoin,
   IconChevronDown,
 } from "@tabler/icons";
+import Link from "next/link";
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -254,8 +255,12 @@ export default function Navbar() {
             </a>
           </Group>
           <Group className={classes.hiddenMobile}>
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+            <Link href="/login">
+              <Button variant="default">Masuk</Button>
+            </Link>
+            <Link href="/signup">
+              <Button>Daftar</Button>
+            </Link>
           </Group>
           <Burger
             opened={drawerOpened}
