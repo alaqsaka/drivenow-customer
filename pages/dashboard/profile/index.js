@@ -1,4 +1,4 @@
-import { Container, Grid, Paper, Text, Box, Tabs } from "@mantine/core";
+import { Text } from "@mantine/core";
 import React from "react";
 
 import Layout from "../../components/auth/Layout";
@@ -7,7 +7,9 @@ import Layout from "../../components/auth/Layout";
 export default function profile() {
   return (
     <div>
-      profile
+      <Text fz="lg" fw={600}>
+        Profile
+      </Text>
       {/* <Footer /> */}
     </div>
   );

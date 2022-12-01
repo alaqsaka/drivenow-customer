@@ -5,7 +5,13 @@ import Layout from "../components/auth/Layout";
 // import Footer from "./components/Footer";
 
 export default function dashboard() {
-  return <div>Transaksi</div>;
+  return (
+    <div>
+      <Text fz="lg" fw={600}>
+        Transaksi
+      </Text>
+    </div>
+  );
 }
 
 dashboard.getLayout = function getLayout(page) {
