@@ -1,18 +1,28 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
-import { useState } from "react";
+import { useState, ReactElement, ReactNode } from "react";
 import Layout from "./components/Layout";
+import type { NextPage } from "next";
 import {
   ColorScheme,
   ColorSchemeProvider,
   MantineProvider,
 } from "@mantine/core";
 
-export default function App(props: AppProps) {
-  const { Component, pageProps } = props;
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+
+  const getLayout = Component.getLayout || ((page) => page);
 
   return (
     <>
@@ -36,9 +46,7 @@ export default function App(props: AppProps) {
             colorScheme,
           }}
         >
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          {getLayout(<Component {...pageProps} />)}
         </MantineProvider>
       </ColorSchemeProvider>
     </>

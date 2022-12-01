@@ -1,5 +1,12 @@
 import React from "react";
-import { Grid, Container, Title, createStyles } from "@mantine/core";
+import {
+  Grid,
+  Container,
+  Title,
+  createStyles,
+  Group,
+  Badge,
+} from "@mantine/core";
 import CarCard from "./CarCard";
 
 const useStyles = createStyles((theme) => ({
@@ -16,6 +23,11 @@ const Cars = () => {
   const { classes, theme } = useStyles();
   return (
     <Container>
+      <Group position="center">
+        <Badge variant="filled" size="lg">
+          Tersedia mobil modern dan pastinya keren
+        </Badge>
+      </Group>
       <Title order={2} className={classes.title} align="center" mt="sm" pb={16}>
         Kendaraan Favorit di DriveNow
       </Title>
