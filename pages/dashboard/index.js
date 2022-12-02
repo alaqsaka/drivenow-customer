@@ -19,7 +19,7 @@ import Layout from "../components/auth/Layout";
 
 export default function dashboard() {
   return (
-    <div>
+    <Box>
       <Text fz="lg" fw={600}>
         Transaksi
       </Text>
@@ -87,7 +87,7 @@ export default function dashboard() {
           </Grid>
         </Paper>
       </Box>
-    </div>
+    </Box>
   );
 }
 

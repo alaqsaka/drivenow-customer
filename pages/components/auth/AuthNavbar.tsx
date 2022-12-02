@@ -98,11 +98,7 @@ interface HeaderResponsiveProps {
 
 export default function AuthNavbar() {
   const router = useRouter();
-  console.log(router);
-  console.log(router);
-  console.log(router.pathname);
   let stringofpath = router.pathname.split("/");
-  console.log(stringofpath[1]);
   const links = [
     {
       url: "/dashboard",
@@ -122,7 +118,6 @@ export default function AuthNavbar() {
   ];
 
   const getPositionLinks = links.findIndex((s) => s.link === stringofpath[1]);
-  console.log(getPositionLinks);
 
   const [opened, { toggle, close }] = useDisclosure(false);
   const [active, setActive] = useState(
@@ -143,7 +138,7 @@ export default function AuthNavbar() {
   ));
 
   return (
-    <Header height={HEADER_HEIGHT} mb={120} className={classes.root}>
+    <Header height={HEADER_HEIGHT} className={classes.root}>
       <Container className={classes.header}>
         DriveNow
         <Group spacing={5} className={classes.links}>

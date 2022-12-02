@@ -11,7 +11,7 @@ export default function Layout({ children }) {
       </Head>
       <AuthNavbar />
 
-      <Container>
+      <Container mt={120}>
         <Grid>
           <Grid.Col xs={12} sm={4}>
             <Paper withBorder p="md">
