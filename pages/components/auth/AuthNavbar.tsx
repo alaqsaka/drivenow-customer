@@ -125,7 +125,9 @@ export default function AuthNavbar() {
   console.log(getPositionLinks);
 
   const [opened, { toggle, close }] = useDisclosure(false);
-  const [active, setActive] = useState(links[getPositionLinks].link);
+  const [active, setActive] = useState(
+    getPositionLinks === -1 ? links[0].link : links[getPositionLinks].link
+  );
   const { classes, cx } = useStyles();
 
   const items = links.map((link) => (
