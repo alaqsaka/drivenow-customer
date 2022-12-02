@@ -98,25 +98,30 @@ interface HeaderResponsiveProps {
 
 export default function AuthNavbar() {
   const router = useRouter();
+  console.log(router);
+  console.log(router);
   console.log(router.pathname);
+  let stringofpath = router.pathname.split("/");
+  console.log(stringofpath[1]);
   const links = [
     {
-      link: "/dashboard",
+      url: "/dashboard",
+      link: "dashboard",
       label: "Dashboard",
     },
     {
-      link: "/sewa",
+      url: "/sewa",
+      link: "sewa",
       label: "Sewa Mobil",
     },
     {
-      link: "/about",
+      url: "/dashboard",
+      link: "about",
       label: "Tentang DriveNow",
     },
   ];
 
-  const getPositionLinks = links.findIndex(
-    (s) => s.link === router.pathname.toString()
-  );
+  const getPositionLinks = links.findIndex((s) => s.link === stringofpath[1]);
   console.log(getPositionLinks);
 
   const [opened, { toggle, close }] = useDisclosure(false);
@@ -126,7 +131,7 @@ export default function AuthNavbar() {
   const items = links.map((link) => (
     <a
       key={link.label}
-      href={link.link}
+      href={link.url}
       className={cx(classes.link, {
         [classes.linkActive]: active === link.link,
       })}
