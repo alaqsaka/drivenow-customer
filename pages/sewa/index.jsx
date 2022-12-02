@@ -1,9 +1,19 @@
-import { Box, createStyles, Grid, Paper, Text } from "@mantine/core";
+import {
+  Box,
+  Button,
+  createStyles,
+  Grid,
+  Paper,
+  Select,
+  Text,
+} from "@mantine/core";
 import Head from "next/head";
 import React from "react";
 import AuthNavbar from "../components/auth/AuthNavbar";
 import Layout from "../components/auth/Layout";
 import bg from "../../public/bg.svg";
+import { DatePicker, DateRangePicker } from "@mantine/dates";
+import { IconCalendar, IconLocation } from "@tabler/icons";
 
 const useStyles = createStyles((theme) => {
   const BREAKPOINT = theme.fn.smallerThan("sm");
@@ -71,15 +81,47 @@ export default function Sewa() {
       <Box className={classes.inputs} p="md">
         <Paper radius="md" p="md" sx={{ width: "768px" }}>
           Pesan rental mobil cepat dan mudah di sini
-          <Grid>
+          <Grid mt="md">
             <Grid.Col xs={12} md={12} lg={4}>
-              <Box style={{ width: "100px" }}>Lokasi Sewa Mobil</Box>
+              <Box>
+                <Select
+                  label="Lokasi Sewa Mobil"
+                  placeholder="Pilih Lokasi Sewa"
+                  searchable
+                  size="md"
+                  nothingFound="Tidak tersedia"
+                  data={[
+                    "Jakarta",
+                    "Bandung",
+                    "Bogor",
+                    "Surabaya",
+                    "Jogjakarta",
+                  ]}
+                  icon={<IconLocation size={25} />}
+                />
+              </Box>
             </Grid.Col>
-            <Grid.Col xs={12} md={6} lg={4}>
-              Tanggal Mulai Sewa
+            <Grid.Col xs={12} md={6} lg={5}>
+              <DateRangePicker
+                placeholder="Tanggal Mulai dan Selesai Sewa"
+                label="Pilih Tanggal Mulai dan Selesai Sewa"
+                radius="md"
+                size="md"
+                icon={<IconCalendar size={25} />}
+              />
             </Grid.Col>
-            <Grid.Col xs={12} md={6} lg={4}>
-              Tanggal Selesai Sewa
+            <Grid.Col
+              xs={12}
+              md={6}
+              lg={3}
+              display="flex"
+              style={{ alignItems: "end" }}
+            >
+              <Box>
+                <Button radius="md" size="md" fullWidth>
+                  Lihat Pilihan Mobil
+                </Button>
+              </Box>
             </Grid.Col>
           </Grid>
         </Paper>
