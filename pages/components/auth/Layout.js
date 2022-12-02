@@ -7,7 +7,7 @@ export default function Layout({ children }) {
   return (
     <Box style={{ backgroundColor: "#F7F9FB", height: "100vh" }}>
       <Head>
-        <title>Layouts Example</title>
+        <title>DriveNow | Dashboard</title>
       </Head>
       <AuthNavbar />
 

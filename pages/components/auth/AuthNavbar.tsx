@@ -9,6 +9,7 @@ import {
   Transition,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useRouter } from "next/router";
 
 const HEADER_HEIGHT = 60;
 
@@ -96,6 +97,8 @@ interface HeaderResponsiveProps {
 }
 
 export default function AuthNavbar() {
+  const router = useRouter();
+  console.log(router.pathname);
   const links = [
     {
       link: "/dashboard",
@@ -110,8 +113,14 @@ export default function AuthNavbar() {
       label: "Tentang DriveNow",
     },
   ];
+
+  const getPositionLinks = links.findIndex(
+    (s) => s.link === router.pathname.toString()
+  );
+  console.log(getPositionLinks);
+
   const [opened, { toggle, close }] = useDisclosure(false);
-  const [active, setActive] = useState(links[0].link);
+  const [active, setActive] = useState(links[getPositionLinks].link);
   const { classes, cx } = useStyles();
 
   const items = links.map((link) => (
@@ -121,11 +130,6 @@ export default function AuthNavbar() {
       className={cx(classes.link, {
         [classes.linkActive]: active === link.link,
       })}
-      onClick={(event) => {
-        event.preventDefault();
-        setActive(link.link);
-        close();
-      }}
     >
       {link.label}
     </a>

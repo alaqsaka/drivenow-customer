@@ -55,7 +55,6 @@ export default function dashboard() {
                 <Image
                   src="https://i.imgur.com/ZL52Q2D.png"
                   alt="Tesla Model S"
-                  fit
                 />
               </Box>
               <Box>
