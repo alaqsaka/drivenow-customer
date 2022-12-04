@@ -8,6 +8,7 @@ import {
   Text,
   Anchor,
 } from "@mantine/core";
+import { NextLink } from "@mantine/next";
 import Head from "next/head";
 
 const useStyles = createStyles((theme) => ({
@@ -78,9 +79,11 @@ export default function Login() {
             mt="md"
             size="md"
           />
-          <Button fullWidth mt="xl" size="md">
-            Masuk
-          </Button>
+          <NextLink href={`/dashboard`} style={{ textDecoration: "none" }}>
+            <Button fullWidth mt="xl" size="md">
+              Masuk
+            </Button>
+          </NextLink>
 
           <Text align="center" mt="md">
             Belum punya akun?{" "}
