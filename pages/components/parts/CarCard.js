@@ -63,7 +63,7 @@ const mockdata = [
   { label: "Electric", icon: IconGasStation },
 ];
 
-export default function Cars() {
+export default function CarCard(props) {
   const { classes } = useStyles();
   const features = mockdata.map((feature) => (
     <Center key={feature.label}>
@@ -115,9 +115,15 @@ export default function Cars() {
             </Text>
           </div>
 
-          <Button radius="xl" style={{ flex: 1 }}>
-            Sewa Sekarang
-          </Button>
+          {!props?.selected && (
+            <Button
+              radius="xl"
+              style={{ flex: 1 }}
+              onClick={() => props.handleSelectCar(props.id)}
+            >
+              Sewa Sekarang
+            </Button>
+          )}
         </Group>
       </Card.Section>
     </Card>
