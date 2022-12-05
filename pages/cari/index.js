@@ -7,6 +7,7 @@ import {
   Button,
   Group,
   TextInput,
+  Select,
 } from "@mantine/core";
 import { useRouter } from "next/router";
 import { useForm } from "@mantine/form";
@@ -14,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import AuthNavbar from "../components/auth/AuthNavbar";
 import CarCard from "../components/parts/CarCard";
 import dayjs from "dayjs";
+import { GENDER } from "../../enums/enums";
 
 const Cari = () => {
   const router = useRouter();
@@ -21,9 +23,17 @@ const Cari = () => {
   const [car, setCar] = useState(undefined);
   const nextStep = () =>
     setActive((current) => {
+      form.setValues({
+        mobilId: car,
+      });
+
       if (form.validate().hasErrors) {
+        console.log("Ada error ", form.errors);
+        console.log(form.values);
+        console.log("Validate", form.validate().errors);
         return current;
       }
+      console.log(form);
       return current < 3 ? current + 1 : current;
     });
   const prevStep = () =>
@@ -37,16 +47,22 @@ const Cari = () => {
       identificationNumber: "",
       gender: "",
       phone: "",
-      catatan: "",
     },
+
     validate: (values) => {
       if (active === 1) {
         return {
-          nama: values.name === undefined ? "Nama Harus Diisi" : "",
-          email: (values) =>
-            values.email === /^\S+@\S+$/.test(values.email)
-              ? null
-              : "Invalid email",
+          nama:
+            values.nama.trim().length < 1 ? "Nama tidak boleh kosong" : null,
+          email: /^\S+@\S+$/.test(values.email) ? null : "Invalid email",
+          phone:
+            values.phone == "" ? "Nomor Handphone Tidak Boleh Kosong" : null,
+          identificationNumber:
+            values.identificationNumber === ""
+              ? "Nomor Identitas Tidak Boleh Kosong"
+              : null,
+          gender:
+            values.gender === "" ? "Jenis Kelamin Tidak Boleh Kosong" : null,
         };
       }
 
@@ -56,7 +72,6 @@ const Cari = () => {
 
   const { lokasi, startDate, endDate } = router.query;
   useEffect(() => {
-    // if (!router.isReady)
     if (router.isReady) {
       if (!lokasi || !startDate || !endDate) router.push("/sewa");
     }
@@ -123,7 +138,7 @@ const Cari = () => {
                       <CarCard selected={true} />
                     </Grid.Col>
                     <Grid.Col xs={12} sm={9}>
-                      <Text fz="xl" fw={600} mb={16}>
+                      <Text fz="xl" fw={600} mb="sm">
                         Data Diri Anda
                       </Text>
                       <form onSubmit={(values) => console.log(values)}>
@@ -134,44 +149,51 @@ const Cari = () => {
                           {...form.getInputProps("nama")}
                         />
                         <TextInput
+                          mt="sm"
                           withAsterisk
                           label="Email"
                           placeholder="Masukkan Alamat Email Anda"
                           {...form.getInputProps("email")}
                         />
-                        {/* <TextInput
+                        <TextInput
+                          mt="sm"
                           withAsterisk
                           label="Nomor Handphone"
-                          placeholder="Masukkan Nomor Handphone Anda"
+                          placeholder="Masukkan Nomor Handphone"
                           {...form.getInputProps("phone")}
                         />
                         <TextInput
+                          mt="sm"
                           withAsterisk
                           label="No. Identitas (KTP)"
                           placeholder="Masukkan Nomor KTP Anda"
                           {...form.getInputProps("identificationNumber")}
                         />
-                        <TextInput
+                        {/* <TextInput
+                          mt="sm"
                           withAsterisk
                           label="Jenis Kelamin"
                           placeholder="Jenis Kelamin Anda"
                           {...form.getInputProps("gender")}
-                        />
-                        <TextInput
-                          label="Catatan"
-                          placeholder="Catatan"
-                          {...form.getInputProps("catatan")}
                         /> */}
+                        <Select
+                          label="Jenis Kelamin"
+                          placeholder="Pilih Jenis Kelamin"
+                          data={GENDER}
+                          {...form.getInputProps("gender")}
+                        />
                       </form>
                     </Grid.Col>
                   </Grid>
                 </Stepper.Step>
                 <Stepper.Step
-                  label="Final step"
-                  description="Get full access"
+                  label="Tahap Terakhir"
+                  description="Review & Pembayaran"
                   allowStepSelect={active > 2}
                 >
-                  Step 3 content: Get full access
+                  <Text fz="lg" fw={600} mt={16}>
+                    Review & Pembayaran
+                  </Text>
                 </Stepper.Step>
                 <Stepper.Completed>
                   Completed, click back button to get to previous step
@@ -182,13 +204,20 @@ const Cari = () => {
                 <Button variant="default" onClick={prevStep}>
                   Back
                 </Button>
-                {active}
                 {active === 1 ? (
-                  <Button disabled={car === null} onClick={nextStep}>
+                  <Button
+                    disabled={car === null}
+                    type="submit"
+                    onClick={nextStep}
+                  >
                     Next step
                   </Button>
                 ) : (
-                  <Button disabled={car == null} onClick={nextStep}>
+                  <Button
+                    type="submit"
+                    disabled={car == null}
+                    onClick={nextStep}
+                  >
                     Next step
                   </Button>
                 )}
