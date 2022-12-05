@@ -537,7 +537,8 @@ const Cari = () => {
                   <Image
                     src={completeImg.src}
                     alt="Berhasil Sewa"
-                    width={500}
+                    width="100%"
+                    sx={{ maxWidth: "500px" }}
                   />
                   <Text fz={30} fw="bold" color="dark">
                     Pemesanan Mobil Berhasil
