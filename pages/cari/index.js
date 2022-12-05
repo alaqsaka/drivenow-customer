@@ -502,7 +502,7 @@ const Cari = () => {
                     type="submit"
                     onClick={nextStep}
                   >
-                    Next step {active}
+                    Next step
                   </Button>
                 ) : (
                   <Button
@@ -510,7 +510,7 @@ const Cari = () => {
                     disabled={car == null}
                     onClick={nextStep}
                   >
-                    Next step {active}
+                    Next step
                   </Button>
                 )}
               </Group>
