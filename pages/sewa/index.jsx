@@ -8,7 +8,8 @@ import {
   Text,
 } from "@mantine/core";
 import Head from "next/head";
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import AuthNavbar from "../components/auth/AuthNavbar";
 import Layout from "../components/auth/Layout";
 import bg from "../../public/bg.svg";
@@ -69,6 +70,24 @@ const useStyles = createStyles((theme) => {
   };
 });
 export default function Sewa() {
+  const [lokasi, setLokasi] = useState();
+  const [loading, setLoading] = useState(false);
+  const lokasiData = [];
+
+  useEffect(() => {
+    setLoading(true);
+    axios.get("http://localhost:5000/lokasi").then((res) => {
+      console.log(res);
+      setLokasi(res.data.data);
+    });
+    setLoading(false);
+  }, []);
+
+  lokasi?.map((item) => {
+    lokasiData.push({ value: item.id, label: item.name });
+  });
+  console.log(lokasiData);
+
   const { classes } = useStyles();
   const form = useForm({
     initialValues: {
@@ -113,53 +132,51 @@ export default function Sewa() {
       <Box className={classes.inputs} p="md">
         <Paper radius="md" p="md" sx={{ width: "768px" }}>
           Pesan rental mobil cepat dan mudah di sini
-          <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
-            <Grid mt="md">
-              <Grid.Col xs={12} md={12} lg={4}>
-                <Box>
-                  <Select
-                    label="Lokasi Sewa Mobil"
-                    placeholder="Pilih Lokasi Sewa"
-                    searchable
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
+              <Grid mt="md">
+                <Grid.Col xs={12} md={12} lg={4}>
+                  <Box>
+                    <Select
+                      label="Lokasi Sewa Mobil"
+                      placeholder="Pilih Lokasi Sewa"
+                      searchable
+                      size="md"
+                      nothingFound="Tidak tersedia"
+                      icon={<IconLocation size={25} />}
+                      {...form.getInputProps("lokasi")}
+                      data={lokasiData}
+                    />
+                  </Box>
+                </Grid.Col>
+                <Grid.Col xs={12} md={6} lg={5}>
+                  <DateRangePicker
+                    placeholder="Tanggal Mulai dan Selesai Sewa"
+                    label="Pilih Tanggal Mulai dan Selesai Sewa"
+                    radius="md"
                     size="md"
-                    nothingFound="Tidak tersedia"
-                    data={[
-                      "Jakarta",
-                      "Bandung",
-                      "Bogor",
-                      "Surabaya",
-                      "Jogjakarta",
-                    ]}
-                    icon={<IconLocation size={25} />}
-                    {...form.getInputProps("lokasi")}
+                    icon={<IconCalendar size={25} />}
+                    {...form.getInputProps("date")}
                   />
-                </Box>
-              </Grid.Col>
-              <Grid.Col xs={12} md={6} lg={5}>
-                <DateRangePicker
-                  placeholder="Tanggal Mulai dan Selesai Sewa"
-                  label="Pilih Tanggal Mulai dan Selesai Sewa"
-                  radius="md"
-                  size="md"
-                  icon={<IconCalendar size={25} />}
-                  {...form.getInputProps("date")}
-                />
-              </Grid.Col>
-              <Grid.Col
-                xs={12}
-                md={6}
-                lg={3}
-                display="flex"
-                style={{ alignItems: "end" }}
-              >
-                <Box>
-                  <Button radius="md" size="md" fullWidth type="submit">
-                    Lihat Pilihan Mobil
-                  </Button>
-                </Box>
-              </Grid.Col>
-            </Grid>
-          </form>
+                </Grid.Col>
+                <Grid.Col
+                  xs={12}
+                  md={6}
+                  lg={3}
+                  display="flex"
+                  style={{ alignItems: "end" }}
+                >
+                  <Box>
+                    <Button radius="md" size="md" fullWidth type="submit">
+                      Lihat Pilihan Mobil
+                    </Button>
+                  </Box>
+                </Grid.Col>
+              </Grid>
+            </form>
+          )}
         </Paper>
       </Box>
     </>
