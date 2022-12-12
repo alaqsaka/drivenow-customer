@@ -82,9 +82,12 @@ const Cari = () => {
         mobilId: car,
       });
       form.setValues({
-        proofPayment: file,
+        proofPayment: { ...file },
       });
-
+      form.setValues({
+        startDate: startDate,
+        endDate: endDate,
+      });
       form.setValues({
         totalPayment: jumlahHari * selectedCar[0]?.price + 50000,
       });
@@ -115,7 +118,7 @@ const Cari = () => {
       endDate: endDate,
       totalPayment: totalPayment,
       mobilId: car,
-      lokasiId: lokasi,
+      lokasiId: parseInt(lokasi),
     },
 
     validate: (values) => {
