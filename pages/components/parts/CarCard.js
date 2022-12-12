@@ -75,26 +75,35 @@ export default function CarCard(props) {
   return (
     <Card withBorder radius="md" className={classes.card}>
       <Card.Section className={classes.imageSection}>
-        <Image src="https://i.imgur.com/ZL52Q2D.png" alt="Tesla Model S" />
+        <Image
+          src={`http://localhost:5000/${props.image}`}
+          alt="Tesla Model S"
+        />
       </Card.Section>
 
       <Group position="apart" mt="md">
         <div>
           <Text weight={500}>Tesla Model S</Text>
           <Text mt="sm" mb="md" color="dimmed" size="xs">
-            As electricity builds up inside its body, it becomes more
-            aggressive. One theory is that the electricity.
+            {props?.description}
           </Text>
         </div>
       </Group>
 
       <Card.Section className={classes.section} mt="md">
         <Text size="sm" color="dimmed" className={classes.label}>
-          Basic configuration
+          Spesifikasi
         </Text>
 
         <Group spacing={8} mb={-8}>
-          {features}
+          <Center>
+            <IconUsers size={18} className={classes.icon} stroke={1.5} />
+            <Text size="xs">{props.totalSeat} Penumpang</Text>
+          </Center>
+          <Center>
+            <IconGasStation size={18} className={classes.icon} stroke={1.5} />
+            <Text size="xs">Bensin {props.fuelType} </Text>
+          </Center>
         </Group>
       </Card.Section>
 
@@ -102,7 +111,7 @@ export default function CarCard(props) {
         <Group spacing={30}>
           <div>
             <Text size="xl" weight={700} sx={{ lineHeight: 1 }}>
-              IDR 150.000
+              IDR {props?.price}
             </Text>
             <Text
               size="sm"
@@ -119,7 +128,7 @@ export default function CarCard(props) {
             <Button
               radius="xl"
               style={{ flex: 1 }}
-              onClick={() => props.handleSelectCar(props.id)}
+              onClick={() => props.setCar(props.id)}
             >
               Sewa Sekarang
             </Button>

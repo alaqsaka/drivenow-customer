@@ -19,10 +19,12 @@ import React, { useEffect, useState, useRef } from "react";
 import AuthNavbar from "../components/auth/AuthNavbar";
 import CarCard from "../components/parts/CarCard";
 import dayjs from "dayjs";
+import axios from "axios";
 import mandiri from "../../public/mandiri.png";
 import completeImg from "../../public/City driver.gif";
 import bca from "../../public/bca.png";
 import { GENDER } from "../../enums/enums";
+import Link from "next/link";
 
 const Cari = () => {
   const router = useRouter();
@@ -30,11 +32,50 @@ const Cari = () => {
   const [active, setActive] = useState(0);
   const [car, setCar] = useState(undefined);
   const resetRef = useRef(null);
+  const [mobil, setMobil] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { lokasi, startDate, endDate } = router.query;
+  const [lokasiName, setLokasiName] = useState("");
+  const [totalHari, settotalHari] = useState(0);
+  // let totalPayment;
+  const [totalPayment, setTotalPayment] = useState(0);
+
+  useEffect(() => {
+    console.log(router.isReady);
+
+    if (router.isReady) {
+      if (!lokasi || !startDate || !endDate) router.push("/sewa");
+    }
+  }, [router.isReady]);
+
+  let jumlahHari = dayjs(dayjs(endDate).format("YYYY-MM-DD")).diff(
+    dayjs(startDate).format("YYYY-MM-DD"),
+    "day"
+  );
+
+  useEffect(() => {
+    setLoading(true);
+    axios.get("http://localhost:5000/mobil").then((res) => {
+      setMobil(res.data.data);
+    });
+
+    axios
+      .get(`http://localhost:5000/lokasi/${lokasi}`)
+      .then((res) => {
+        setLokasiName(res.data.data.name);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    setLoading(false);
+  }, [router.isReady]);
 
   const clearFile = () => {
     setFile(null);
     resetRef.current?.();
   };
+
   const nextStep = () =>
     setActive((current) => {
       form.setValues({
@@ -44,6 +85,10 @@ const Cari = () => {
         proofPayment: file,
       });
 
+      form.setValues({
+        totalPayment: jumlahHari * selectedCar[0]?.price + 50000,
+      });
+
       if (form.validate().hasErrors) {
         console.log("Ada error ", form.errors);
         console.log(form.values);
@@ -51,6 +96,7 @@ const Cari = () => {
         return current;
       }
       console.log(form);
+
       return current < 4 ? current + 1 : current;
     });
   const prevStep = () =>
@@ -65,6 +111,11 @@ const Cari = () => {
       gender: "",
       phone: "",
       proofPayment: "",
+      startDate: startDate,
+      endDate: endDate,
+      totalPayment: totalPayment,
+      mobilId: car,
+      lokasiId: lokasi,
     },
 
     validate: (values) => {
@@ -88,24 +139,24 @@ const Cari = () => {
     },
   });
 
-  const { lokasi, startDate, endDate } = router.query;
-  useEffect(() => {
-    if (router.isReady) {
-      if (!lokasi || !startDate || !endDate) router.push("/sewa");
-    }
-  }, []);
+  let selectedCar = mobil?.filter((item) => item.id === car);
+  // setTotalPayment(jumlahHari * selectedCar[0]?.price + 50000);
 
-  const data = [
-    { id: 1 },
-    { id: 2 },
-    { id: 3 },
-    { id: 4 },
-    { id: 5 },
-    { id: 6 },
-  ];
+  let subTotal = (jumlahHari, price) => {
+    let hargaSubTotal = jumlahHari * price;
+    hargaSubTotal = hargaSubTotal
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return hargaSubTotal;
+  };
 
-  const handleSelectCar = (id) => {
-    setCar(id);
+  let total = (jumlahHari, price, pajak) => {
+    let hargaSubTotal = jumlahHari * price;
+    let hargaTotal = hargaSubTotal + pajak;
+    // setTotalPayment(hargaTotal);
+    hargaTotal = hargaTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    return hargaTotal;
   };
 
   return (
@@ -131,20 +182,17 @@ const Cari = () => {
                       allowStepSelect={active > 0}
                     >
                       <Text fz="lg" fw="bold" mt={16}>
-                        Pilih mobil buat di {lokasi}
+                        Pilih mobil buat di {lokasiName}
                       </Text>
+                      mobil {car}
                       <Text fz="md">
                         {dayjs(startDate).format("dddd, D MMMM YYYY")} -{" "}
                         {dayjs(endDate).format("dddd, D MMMM YYYY")}
                       </Text>
-                      <Text>Mobil {car}</Text>
                       <Grid mt={16}>
-                        {data.map((item) => (
+                        {mobil?.map((item) => (
                           <Grid.Col xs={12} sm={6} lg={4} key={item.id}>
-                            <CarCard
-                              handleSelectCar={handleSelectCar}
-                              id={item.id}
-                            />
+                            <CarCard setCar={setCar} id={item.id} {...item} />
                           </Grid.Col>
                         ))}
                       </Grid>
@@ -159,7 +207,10 @@ const Cari = () => {
                       </Text>
                       <Grid mt={16}>
                         <Grid.Col xs={12} sm={3}>
-                          <CarCard selected={true} />
+                          <CarCard
+                            selected={true}
+                            {...(selectedCar ? selectedCar[0] : "")}
+                          />
                         </Grid.Col>
                         <Grid.Col xs={12} sm={9}>
                           <Text fz="xl" fw={600} mb="sm">
@@ -212,152 +263,175 @@ const Cari = () => {
                       <Text fz="lg" fw={600} mt={16}>
                         Review
                       </Text>
-                      <Grid mt={16}>
-                        <Grid.Col xs={12} sm={3}>
-                          <Text fz="xl" fw={600} mb="sm">
-                            Mobil Pilihan Anda
-                          </Text>
-                          <CarCard selected={true} />
-                        </Grid.Col>
-                        <Grid.Col xs={12} sm={9}>
-                          <Text fz="xl" fw={600} mb="sm">
-                            Data Diri Anda
-                          </Text>
-                          <Card withBorder radius="md">
-                            <Grid>
-                              <Grid.Col xs={12} sm={3}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Nama Lengkap
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={9}>
-                                <Text fz="md" fw={500}>
-                                  {form.values.nama}
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={3}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Email
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={9}>
-                                <Text fz="md" fw={500}>
-                                  {form.values.email}
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={3}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Nomor Telepon
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={9}>
-                                <Text fz="md" fw={500}>
-                                  {form.values.phone}
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={3}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  No. Identitas (KTP)
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={9}>
-                                <Text fz="md" fw={500}>
-                                  {form.values.identificationNumber}
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={3}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Jenis Kelamin
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={9}>
-                                <Text fz="md" fw={500}>
-                                  {form.values == "MALE"
-                                    ? "Laki-Laki"
-                                    : "Perempuan"}
-                                </Text>
-                              </Grid.Col>
-                            </Grid>
-                          </Card>
-                          <Text fz="xl" fw={600} mb="sm" mt="md">
-                            Detail Pembayaran
-                          </Text>
-                          <Card withBorder radius="md" justify="space-between">
-                            <Grid>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Sewa mobil Tesla Model S per hari
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  IDR 150.000,00
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Mulai dari{" "}
-                                  <Text fz="sm" fw={600}>
-                                    {dayjs(startDate).format(
-                                      "dddd, D MMMM YYYY"
-                                    )}
-                                  </Text>
-                                  Sampai
-                                  <Text fz="sm" fw={600}>
-                                    {dayjs(endDate).format("dddd, D MMMM YYYY")}
-                                  </Text>
-                                  Jumlah hari
-                                  <Text fz="sm" fw={600}>
-                                    3 HARI
-                                  </Text>
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  3 x IDR 150.000,00
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12}>
-                                <Divider my="sm" />
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Sub Total
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  IDR 450.000,00
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Pajak
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  IDR 50,000.00
-                                </Text>
-                              </Grid.Col>
+                      {selectedCar && (
+                        <>
+                          <Grid mt={16}>
+                            <Grid.Col xs={12} sm={3}>
+                              <Text fz="xl" fw={600} mb="sm">
+                                Mobil Pilihan Anda
+                              </Text>
+                              <CarCard
+                                selected={true}
+                                {...(selectedCar ? selectedCar[0] : "")}
+                              />
+                            </Grid.Col>
+                            <Grid.Col xs={12} sm={9}>
+                              <Text fz="xl" fw={600} mb="sm">
+                                Data Diri Anda
+                              </Text>
+                              <Card withBorder radius="md">
+                                <Grid>
+                                  <Grid.Col xs={12} sm={3}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      Nama Lengkap
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={9}>
+                                    <Text fz="md" fw={500}>
+                                      {form.values.nama}
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={3}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      Email
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={9}>
+                                    <Text fz="md" fw={500}>
+                                      {form.values.email}
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={3}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      Nomor Telepon
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={9}>
+                                    <Text fz="md" fw={500}>
+                                      {form.values.phone}
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={3}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      No. Identitas (KTP)
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={9}>
+                                    <Text fz="md" fw={500}>
+                                      {form.values.identificationNumber}
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={3}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      Jenis Kelamin
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={9}>
+                                    <Text fz="md" fw={500}>
+                                      {form.values == "MALE"
+                                        ? "Laki-Laki"
+                                        : "Perempuan"}
+                                    </Text>
+                                  </Grid.Col>
+                                </Grid>
+                              </Card>
+                              <Text fz="xl" fw={600} mb="sm" mt="md">
+                                Detail Pembayaran
+                              </Text>
 
-                              <Grid.Col xs={12}>
-                                <Divider my="sm" />
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600}>
-                                  Total
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  IDR 500.000,00
-                                </Text>
-                              </Grid.Col>
-                            </Grid>
-                          </Card>
-                        </Grid.Col>
-                      </Grid>
+                              <Card
+                                withBorder
+                                radius="md"
+                                justify="space-between"
+                              >
+                                <Grid>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      Sewa mobil {selectedCar[0]?.name}
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="md" fw={600} align="end">
+                                      IDR {selectedCar[0]?.price}
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      Mulai dari{" "}
+                                      <Text fz="sm" fw={600}>
+                                        {dayjs(startDate).format(
+                                          "dddd, D MMMM YYYY"
+                                        )}
+                                      </Text>
+                                      Sampai
+                                      <Text fz="sm" fw={600}>
+                                        {dayjs(endDate).format(
+                                          "dddd, D MMMM YYYY"
+                                        )}
+                                      </Text>
+                                      Jumlah hari
+                                      <Text fz="sm" fw={600}>
+                                        {jumlahHari} HARI
+                                      </Text>
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="md" fw={600} align="end">
+                                      {jumlahHari} x IDR {selectedCar[0]?.price}
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12}>
+                                    <Divider my="sm" />
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      Sub Total
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="md" fw={600} align="end">
+                                      IDR{" "}
+                                      {subTotal(
+                                        jumlahHari,
+                                        selectedCar[0]?.price
+                                      )}
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="sm" fw={400} color="dimmed">
+                                      Pajak
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="md" fw={600} align="end">
+                                      IDR 50,000.00
+                                    </Text>
+                                  </Grid.Col>
+
+                                  <Grid.Col xs={12}>
+                                    <Divider my="sm" />
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="md" fw={600}>
+                                      Total
+                                    </Text>
+                                  </Grid.Col>
+                                  <Grid.Col xs={12} sm={6}>
+                                    <Text fz="md" fw={600} align="end">
+                                      IDR{" "}
+                                      {total(
+                                        jumlahHari,
+                                        selectedCar[0]?.price,
+                                        50000
+                                      )}
+                                    </Text>
+                                  </Grid.Col>
+                                </Grid>
+                              </Card>
+                            </Grid.Col>
+                          </Grid>
+                        </>
+                      )}
                     </Stepper.Step>
                     <Stepper.Step
                       label="Tahap Keempat"
@@ -369,80 +443,101 @@ const Cari = () => {
                       </Text>
                       <Grid>
                         <Grid.Col xs={12} sm={6}>
-                          <Card withBorder radius="md" justify="space-between">
-                            <Grid>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Sewa mobil Tesla Model S per hari
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  IDR 150.000,00
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Mulai dari{" "}
-                                  <Text fz="sm" fw={600}>
-                                    {dayjs(startDate).format(
-                                      "dddd, D MMMM YYYY"
+                          {selectedCar && (
+                            <Card
+                              withBorder
+                              radius="md"
+                              justify="space-between"
+                            >
+                              <Grid>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="sm" fw={400} color="dimmed">
+                                    Sewa mobil{" "}
+                                    {selectedCar ? selectedCar[0]?.name : ""}{" "}
+                                    per hari
+                                  </Text>
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="md" fw={600} align="end">
+                                    IDR{" "}
+                                    {selectedCar ? selectedCar[0]?.price : ""}
+                                  </Text>
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="sm" fw={400} color="dimmed">
+                                    Mulai dari{" "}
+                                    <Text fz="sm" fw={600}>
+                                      {dayjs(startDate).format(
+                                        "dddd, D MMMM YYYY"
+                                      )}
+                                    </Text>
+                                    Sampai
+                                    <Text fz="sm" fw={600}>
+                                      {dayjs(endDate).format(
+                                        "dddd, D MMMM YYYY"
+                                      )}
+                                    </Text>
+                                    Jumlah hari
+                                    <Text fz="sm" fw={600}>
+                                      {jumlahHari}
+                                    </Text>
+                                  </Text>
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="md" fw={600} align="end">
+                                    {jumlahHari} x IDR{" "}
+                                    {selectedCar[0] ? selectedCar[0].price : ""}
+                                  </Text>
+                                </Grid.Col>
+                                <Grid.Col xs={12}>
+                                  <Divider my="sm" />
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="sm" fw={400} color="dimmed">
+                                    Sub Total
+                                  </Text>
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="md" fw={600} align="end">
+                                    IDR{" "}
+                                    {subTotal(
+                                      jumlahHari,
+                                      selectedCar ? selectedCar[0]?.price : ""
                                     )}
                                   </Text>
-                                  Sampai
-                                  <Text fz="sm" fw={600}>
-                                    {dayjs(endDate).format("dddd, D MMMM YYYY")}
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="sm" fw={400} color="dimmed">
+                                    Pajak
                                   </Text>
-                                  Jumlah hari
-                                  <Text fz="sm" fw={600}>
-                                    3 HARI
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="md" fw={600} align="end">
+                                    IDR 50,000.00
                                   </Text>
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  3 x IDR 150.000,00
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12}>
-                                <Divider my="sm" />
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Sub Total
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  IDR 450.000,00
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="sm" fw={400} color="dimmed">
-                                  Pajak
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  IDR 50,000.00
-                                </Text>
-                              </Grid.Col>
+                                </Grid.Col>
 
-                              <Grid.Col xs={12}>
-                                <Divider my="sm" />
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600}>
-                                  Total
-                                </Text>
-                              </Grid.Col>
-                              <Grid.Col xs={12} sm={6}>
-                                <Text fz="md" fw={600} align="end">
-                                  IDR 500.000,00
-                                </Text>
-                              </Grid.Col>
-                            </Grid>
-                          </Card>
+                                <Grid.Col xs={12}>
+                                  <Divider my="sm" />
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="md" fw={600}>
+                                    Total
+                                  </Text>
+                                </Grid.Col>
+                                <Grid.Col xs={12} sm={6}>
+                                  <Text fz="md" fw={600} align="end">
+                                    IDR{" "}
+                                    {total(
+                                      jumlahHari,
+                                      selectedCar ? selectedCar[0]?.price : "",
+                                      50000
+                                    )}
+                                  </Text>
+                                </Grid.Col>
+                              </Grid>
+                            </Card>
+                          )}
                         </Grid.Col>
                         <Grid.Col xs={12} sm={6}>
                           <Card withBorder radius="md">
@@ -554,7 +649,9 @@ const Cari = () => {
                       </Button>
                     </Grid.Col>
                     <Grid.Col xs={12} sm={6}>
-                      <Button fullWidth>Kembali ke Dashboard</Button>
+                      <Link href={`/dashboard`}>
+                        <Button fullWidth>Kembali ke Dashboard</Button>
+                      </Link>
                     </Grid.Col>
                   </Grid>
                 </Box>
