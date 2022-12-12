@@ -11,6 +11,8 @@ import {
   Button,
   Tooltip,
 } from "@mantine/core";
+import { useForm } from "@mantine/form";
+
 import Footer from "./components/Footer";
 import { DatePicker } from "@mantine/dates";
 import { useState } from "react";
@@ -20,6 +22,7 @@ function TooltipFocus({ label, placeholder }: any) {
   const [opened, setOpened] = useState(false);
   const [value, setValue] = useState("");
   const valid = value.trim().length >= 6;
+
   return (
     <Tooltip
       label={
@@ -45,6 +48,39 @@ function TooltipFocus({ label, placeholder }: any) {
 }
 
 export default function Signup() {
+  const form = useForm({
+    initialValues: {
+      name: "",
+      password: "",
+      retypePassword: "",
+      email: "",
+      phone: "",
+      dateOfBirth: "",
+    },
+
+    validate: (values) => {
+      return {
+        name:
+          values.name.trim().length < 6
+            ? "Username must include at least 6 characters"
+            : null,
+        password:
+          values.password.length < 6
+            ? "Password must include at least 6 characters"
+            : null,
+        phone:
+          values.phone.length < 6
+            ? "Phone number must include at least 6 characters"
+            : null,
+        email: /^\S+@\S+$/.test(values.email) ? null : "Invalid email",
+      };
+    },
+  });
+
+  const handleSubmit = (values: any) => {
+    console.log(" submitt ", values);
+  };
+
   return (
     <>
       <Head>
@@ -70,40 +106,54 @@ export default function Signup() {
           </Anchor>
         </Text>
 
-        <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-          <TextInput label="Nama Lengkap" placeholder="Nama Lengkap" required />
-          <TextInput
-            label="Nomor Telepon"
-            mt="md"
-            placeholder="Nomor Telepon"
-            required
-          />
-          <TextInput
-            label="Email"
-            mt="md"
-            placeholder="you@mantine.dev"
-            required
-          />
+        <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
+          <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+            <TextInput
+              label="Nama Lengkap"
+              placeholder="Nama Lengkap"
+              required
+              {...form.getInputProps("name")}
+            />
+            <TextInput
+              label="Nomor Telepon"
+              mt="md"
+              placeholder="Nomor Telepon"
+              required
+              {...form.getInputProps("phone")}
+            />
+            <TextInput
+              label="Email"
+              mt="md"
+              placeholder="you@mantine.dev"
+              required
+              {...form.getInputProps("email")}
+            />
 
-          <TooltipFocus label="Password" placeholder="Your password" />
-          <TextInput
-            label="Retype Password"
-            placeholder="Retype Password"
-            mt="md"
-            required
-          />
+            <PasswordInput
+              label="Password"
+              mt="md"
+              placeholder="Your password"
+              {...form.getInputProps("password")}
+            />
+            <PasswordInput
+              mt="md"
+              label="Retype Password"
+              placeholder="Retype password"
+              {...form.getInputProps("retypePassword")}
+            />
 
-          <DatePicker
-            mt="md"
-            placeholder="Tanggal Lahir"
-            label="Tanggal Lahir"
-            withAsterisk
-          />
-
-          <Button fullWidth mt="xl">
+            <DatePicker
+              mt="md"
+              placeholder="Tanggal Lahir"
+              label="Tanggal Lahir"
+              withAsterisk
+              {...form.getInputProps("dateOfBirth")}
+            />
+          </Paper>
+          <Button type="submit" fullWidth mt="xl">
             Daftar
           </Button>
-        </Paper>
+        </form>
       </Container>
     </>
   );
