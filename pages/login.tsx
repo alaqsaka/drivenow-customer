@@ -7,9 +7,15 @@ import {
   Title,
   Text,
   Anchor,
+  Alert,
 } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import axios from "axios";
 import { NextLink } from "@mantine/next";
 import Head from "next/head";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import { IconAlertCircle } from "@tabler/icons";
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -49,6 +55,42 @@ const useStyles = createStyles((theme) => ({
 
 export default function Login() {
   const { classes } = useStyles();
+  const [response, setResponse] = useState("");
+  const router = useRouter();
+
+  const form = useForm({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+
+    validate: (values) => {
+      return {
+        password:
+          values.password.length < 6
+            ? "Password must include at least 6 characters"
+            : null,
+        email: /^\S+@\S+$/.test(values.email) ? null : "Invalid email",
+      };
+    },
+  });
+
+  const handleSubmit = (values: any) => {
+    console.log(" submitt ", values);
+    axios
+      .post(`http://localhost:5000/customers/login`, values)
+      .then((res) => {
+        setResponse(res.data.data);
+        console.log(response);
+        router.push("/dashboard");
+      })
+      .catch((err) => {
+        console.log(err.response.data.message);
+        setResponse(err.response.data);
+        console.log(response);
+      });
+  };
+
   return (
     <>
       <Head>
@@ -57,41 +99,58 @@ export default function Login() {
       </Head>
 
       <div className={classes.wrapper}>
-        <Paper className={classes.form} radius={0} p={30}>
-          <Title
-            order={2}
-            className={classes.title}
-            align="center"
-            mt="md"
-            mb={50}
-          >
-            Selamat datang di DriveNow
-          </Title>
+        <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
+          <Paper className={classes.form} radius={0} p={30}>
+            <Title
+              order={2}
+              className={classes.title}
+              align="center"
+              mt="md"
+              mb={50}
+            >
+              Selamat datang di DriveNow
+            </Title>
+            {response && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                title={response?.status === "error" ? "Error" : "Success"}
+                color={response?.status === "error" ? "red" : "green"}
+                withCloseButton
+                variant="filled"
 
-          <TextInput
-            label="Email address"
-            placeholder="hello@gmail.com"
-            size="md"
-          />
-          <PasswordInput
-            label="Password"
-            placeholder="Your password"
-            mt="md"
-            size="md"
-          />
-          <NextLink href={`/dashboard`} style={{ textDecoration: "none" }}>
-            <Button fullWidth mt="xl" size="md">
+                // onClose={() => }
+              >
+                {response?.status === "error"
+                  ? response?.message
+                  : "Berhasil Login"}
+              </Alert>
+            )}
+            <TextInput
+              label="Email address"
+              placeholder="hello@gmail.com"
+              size="md"
+              {...form.getInputProps("email")}
+            />
+            <PasswordInput
+              label="Password"
+              placeholder="Your password"
+              mt="md"
+              size="md"
+              {...form.getInputProps("password")}
+            />
+
+            <Button type="submit" fullWidth mt="xl" size="md">
               Masuk
             </Button>
-          </NextLink>
 
-          <Text align="center" mt="md">
-            Belum punya akun?{" "}
-            <Anchor<"a"> href="/signup" weight={700}>
-              Daftar
-            </Anchor>
-          </Text>
-        </Paper>
+            <Text align="center" mt="md">
+              Belum punya akun?{" "}
+              <Anchor<"a"> href="/signup" weight={700}>
+                Daftar
+              </Anchor>
+            </Text>
+          </Paper>
+        </form>
       </div>
     </>
   );

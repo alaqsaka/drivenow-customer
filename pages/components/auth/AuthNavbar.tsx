@@ -97,6 +97,7 @@ interface HeaderResponsiveProps {
 }
 
 export default function AuthNavbar() {
+  console.log("dashboard user");
   const router = useRouter();
   let stringofpath = router.pathname.split("/");
   const links = [
