@@ -82,6 +82,7 @@ export default function Login() {
       .then((res) => {
         setResponse(res.data.data);
         console.log(response);
+        localStorage.setItem("customerToken", res.data.customerToken);
         router.push("/dashboard");
       })
       .catch((err) => {
