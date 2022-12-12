@@ -10,13 +10,17 @@ import {
   Group,
   Button,
   Tooltip,
+  Alert,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import axios from "axios";
 
 import Footer from "./components/Footer";
+import { useRouter } from "next/router";
 import { DatePicker } from "@mantine/dates";
 import { useState } from "react";
 import Head from "next/head";
+import { IconAlertCircle } from "@tabler/icons";
 
 function TooltipFocus({ label, placeholder }: any) {
   const [opened, setOpened] = useState(false);
@@ -48,6 +52,13 @@ function TooltipFocus({ label, placeholder }: any) {
 }
 
 export default function Signup() {
+  const [response, setResponse] = useState("");
+  const router = useRouter();
+
+  function closeAlert() {
+    setResponse("");
+  }
+
   const form = useForm({
     initialValues: {
       name: "",
@@ -79,6 +90,18 @@ export default function Signup() {
 
   const handleSubmit = (values: any) => {
     console.log(" submitt ", values);
+    axios
+      .post(`http://localhost:5000/customers/register`, values)
+      .then((res) => {
+        setResponse(res.data.data);
+        console.log(response);
+        router.push("/login");
+      })
+      .catch((err) => {
+        console.log(err.response.data.message);
+        setResponse(err.response.data);
+        console.log(response);
+      });
   };
 
   return (
@@ -108,6 +131,21 @@ export default function Signup() {
 
         <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
           <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+            {response && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                title={response.status === "error" ? "Error" : "Success"}
+                color={response.status === "error" ? "red" : "green"}
+                withCloseButton
+                variant="filled"
+
+                // onClose={() => }
+              >
+                {response.status === "error"
+                  ? response.message
+                  : "Akun berhasil dibuat"}
+              </Alert>
+            )}
             <TextInput
               label="Nama Lengkap"
               placeholder="Nama Lengkap"
